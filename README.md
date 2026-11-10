@@ -46,8 +46,8 @@ Cada carpeta tiene su propio README con más detalle:
 
 ### Requisitos
 
-- [Git](https://git-scm.com/)
-- [Docker Desktop](https://www.docker.com/products/docker-desktop/) abierto
+- Git
+- Docker Desktop abierto
 - Los puertos **3000** y **4000** libres
 
 ### Pasos
@@ -130,4 +130,4 @@ Variables del `.env.example` de la raíz (Docker):
 | `WEB_PORT`, `API_PORT`                            | 
 | `PUBLIC_API_URL`, `PUBLIC_WS_URL`                 | 
 
-Las variables para ejecutar sin Docker están explicadas en el [README del backend](Backend/Back-SOLUX/README.md#3-variables-de-entorno) y en el [del frontend](Frontend/Front-SOLUX/README.md#3-variables-de-entorno).
+Las variables para ejecutar sin Docker están explicadas en el [README del backend](Backend/Back-SOLUX/README.md#5-variables-de-entorno) y en el [del frontend](Frontend/Front-SOLUX/README.md#5-variables-de-entorno).
