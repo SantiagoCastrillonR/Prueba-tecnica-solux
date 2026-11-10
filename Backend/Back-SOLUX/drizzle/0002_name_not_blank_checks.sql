@@ -1,0 +1,2 @@
+ALTER TABLE "users" ADD CONSTRAINT "users_name_not_blank_check" CHECK (char_length(btrim("users"."name")) > 0);--> statement-breakpoint
+ALTER TABLE "chats" ADD CONSTRAINT "chats_name_not_blank_check" CHECK ("chats"."name" is null or char_length(btrim("chats"."name")) > 0);

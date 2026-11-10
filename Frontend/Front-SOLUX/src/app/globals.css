@@ -1,0 +1,54 @@
+@import 'tailwindcss';
+
+@theme {
+  --color-brand-50: #f4f9ef;
+  --color-brand-100: #e5f1db;
+  --color-brand-200: #cbe2b8;
+  --color-brand-300: #acd18f;
+  --color-brand-400: #8dc069;
+  --color-brand-500: #70ad47;
+  --color-brand-600: #5a9238;
+  --color-brand-700: #497730;
+  --color-brand-800: #3b5f29;
+  --color-brand-900: #314e24;
+
+  --color-ink-50: #f6f6f6;
+  --color-ink-100: #ececec;
+  --color-ink-200: #d6d6d6;
+  --color-ink-300: #b4b4b4;
+  --color-ink-400: #8a8a8a;
+  --color-ink-500: #626262;
+  --color-ink-600: #484848;
+  --color-ink-700: #323232;
+  --color-ink-800: #1f1f1f;
+  --color-ink-900: #101010;
+  --color-ink-950: #050505;
+
+  --font-sans:
+    ui-sans-serif, system-ui, 'Segoe UI', Roboto, 'Helvetica Neue', Arial,
+    sans-serif;
+
+  --animate-spin-slow: spin 1.2s linear infinite;
+}
+
+@layer base {
+  html {
+    color-scheme: light;
+  }
+
+  body {
+    font-family: var(--font-sans);
+    background-color: var(--color-ink-50);
+    color: var(--color-ink-950);
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-brand-600);
+    outline-offset: 2px;
+  }
+}
+
+@utility scrollbar-thin {
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-ink-300) transparent;
+}

@@ -1,0 +1,56 @@
+
+name: solux-chat
+
+services:
+  db:
+    image: postgres:18-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+      POSTGRES_DB: ${POSTGRES_DB:-solux_chat}
+    volumes:
+      - postgres_data:/var/lib/postgresql
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}']
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  api:
+    build:
+      context: ./Backend/Back-SOLUX
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      NODE_ENV: ${API_NODE_ENV:-development}
+      PORT: 4000
+      API_PREFIX: api
+      CORS_ORIGIN: ${WEB_ORIGIN:-http://localhost:3000}
+      DATABASE_URL: postgres://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@db:5432/${POSTGRES_DB:-solux_chat}
+      DATABASE_SSL: 'false'
+      JWT_SECRET: ${JWT_SECRET:-solux-demo-secret-cambiar-antes-de-publicar-0123456789}
+      JWT_EXPIRES_IN: 1d
+      BCRYPT_ROUNDS: 10
+      COOKIE_SECURE: ${COOKIE_SECURE:-false}
+      RUN_SEED: ${RUN_SEED:-true}
+    ports:
+      - '${API_PORT:-4000}:4000'
+
+  web:
+    build:
+      context: ./Frontend/Front-SOLUX
+      args:
+        NEXT_PUBLIC_API_URL: ${PUBLIC_API_URL:-http://localhost:4000/api}
+        NEXT_PUBLIC_WS_URL: ${PUBLIC_WS_URL:-http://localhost:4000}
+    restart: unless-stopped
+    depends_on:
+      api:
+        condition: service_healthy
+    ports:
+      - '${WEB_PORT:-3000}:3000'
+
+volumes:
+  postgres_data:
