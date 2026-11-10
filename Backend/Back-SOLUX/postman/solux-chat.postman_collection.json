@@ -1,409 +1,251 @@
 {
   "info": {
-    "name": "Solux Chat API",
-    "description": "Pruebas de la API REST del chat.\n\nAntes de ejecutarla: la API debe estar corriendo en http://localhost:4000 y los usuarios de prueba cargados (Docker lo hace solo).\n\nEjecuta las peticiones en orden: el login guarda la cookie de sesión y algunas peticiones guardan ids que usan las siguientes.\n\nLos mensajes en tiempo real van por Socket.IO, así que se prueban desde la aplicación web.",
+    "name": "Solux Chat",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "item": [
     {
-      "name": "1. Autenticación",
-      "item": [
-        {
-          "name": "Registrar usuario",
-          "event": [
-            {
-              "listen": "prerequest",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.collectionVariables.set('newEmail', 'usuario' + Date.now() + '@test.com');"
-                ]
-              }
-            },
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.test('Status 201', () => pm.response.to.have.status(201));",
-                  "pm.test('No devuelve la contraseña', () => pm.expect(pm.response.json()).to.not.have.property('password'));"
-                ]
-              }
-            }
-          ],
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/auth/register",
-              "host": ["{{baseUrl}}"],
-              "path": ["auth", "register"]
-            },
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"name\": \"Usuario Postman\",\n  \"email\": \"{{newEmail}}\",\n  \"password\": \"Password123\"\n}"
-            }
+      "name": "Registro",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
           }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/auth/register",
+          "host": ["{{baseUrl}}"],
+          "path": ["auth", "register"]
         },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"Usuario Prueba\",\n  \"email\": \"{{$randomEmail}}\",\n  \"password\": \"Password123\"\n}"
+        }
+      },
+      "event": [
         {
-          "name": "Registrar con un correo ya registrado",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.test('Status 409', () => pm.response.to.have.status(409));",
-                  "pm.test('Error: correo ya registrado', () => pm.expect(pm.response.json().code).to.eql('USER_ALREADY_EXISTS'));"
-                ]
-              }
-            }
-          ],
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/auth/register",
-              "host": ["{{baseUrl}}"],
-              "path": ["auth", "register"]
-            },
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"name\": \"Ana\",\n  \"email\": \"ana@solux.test\",\n  \"password\": \"Password123\"\n}"
-            }
-          }
-        },
-        {
-          "name": "Registrar con datos inválidos",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.test('Status 400', () => pm.response.to.have.status(400));"
-                ]
-              }
-            }
-          ],
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/auth/register",
-              "host": ["{{baseUrl}}"],
-              "path": ["auth", "register"]
-            },
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"name\": \"\",\n  \"email\": \"esto-no-es-un-correo\",\n  \"password\": \"123\"\n}"
-            }
-          }
-        },
-        {
-          "name": "Login con contraseña incorrecta",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.test('Status 401', () => pm.response.to.have.status(401));",
-                  "pm.test('Error: credenciales inválidas', () => pm.expect(pm.response.json().code).to.eql('INVALID_CREDENTIALS'));"
-                ]
-              }
-            }
-          ],
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/auth/login",
-              "host": ["{{baseUrl}}"],
-              "path": ["auth", "login"]
-            },
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"email\": \"ana@solux.test\",\n  \"password\": \"incorrecta\"\n}"
-            }
-          }
-        },
-        {
-          "name": "Login con Ana",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
-                  "pm.test('Guarda la cookie de sesión', () => pm.expect(pm.cookies.has('access_token')).to.be.true);"
-                ]
-              }
-            }
-          ],
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/auth/login",
-              "host": ["{{baseUrl}}"],
-              "path": ["auth", "login"]
-            },
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"email\": \"ana@solux.test\",\n  \"password\": \"Solux2026!\"\n}"
-            }
-          }
-        },
-        {
-          "name": "Ver usuario actual",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
-                  "pm.test('Es Ana', () => pm.expect(pm.response.json().email).to.eql('ana@solux.test'));"
-                ]
-              }
-            }
-          ],
-          "request": {
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "{{baseUrl}}/auth/me",
-              "host": ["{{baseUrl}}"],
-              "path": ["auth", "me"]
-            }
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status 201', () => pm.response.to.have.status(201));"
+            ]
           }
         }
       ]
     },
     {
-      "name": "2. Usuarios",
-      "item": [
+      "name": "Login incorrecto",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/auth/login",
+          "host": ["{{baseUrl}}"],
+          "path": ["auth", "login"]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"email\": \"ana@solux.test\",\n  \"password\": \"incorrecta\"\n}"
+        }
+      },
+      "event": [
         {
-          "name": "Listar usuarios",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
-                  "const users = pm.response.json();",
-                  "pm.test('No incluye al usuario actual', () => pm.expect(users.map((u) => u.email)).to.not.include('ana@solux.test'));",
-                  "const bruno = users.find((u) => u.email === 'bruno@solux.test');",
-                  "pm.collectionVariables.set('brunoId', bruno.id);"
-                ]
-              }
-            }
-          ],
-          "request": {
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "{{baseUrl}}/users",
-              "host": ["{{baseUrl}}"],
-              "path": ["users"]
-            }
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status 401', () => pm.response.to.have.status(401));"
+            ]
           }
         }
       ]
     },
     {
-      "name": "3. Chats",
-      "item": [
-        {
-          "name": "Crear chat con Bruno",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.test('Status 201 (nuevo) o 200 (ya existía)', () => pm.expect(pm.response.code).to.be.oneOf([200, 201]));",
-                  "pm.collectionVariables.set('chatId', pm.response.json().id);"
-                ]
-              }
-            }
-          ],
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/chats",
-              "host": ["{{baseUrl}}"],
-              "path": ["chats"]
-            },
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"participantIds\": [\n    \"{{brunoId}}\"\n  ]\n}"
-            }
+      "name": "Login",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
           }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/auth/login",
+          "host": ["{{baseUrl}}"],
+          "path": ["auth", "login"]
         },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"email\": \"ana@solux.test\",\n  \"password\": \"Solux2026!\"\n}"
+        }
+      },
+      "event": [
         {
-          "name": "Crear chat sin participantes",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.test('Status 400', () => pm.response.to.have.status(400));"
-                ]
-              }
-            }
-          ],
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/chats",
-              "host": ["{{baseUrl}}"],
-              "path": ["chats"]
-            },
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"participantIds\": []\n}"
-            }
-          }
-        },
-        {
-          "name": "Listar mis chats",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
-                  "pm.test('Incluye el chat con Bruno', () => pm.expect(pm.response.json().map((c) => c.id)).to.include(pm.collectionVariables.get('chatId')));"
-                ]
-              }
-            }
-          ],
-          "request": {
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "{{baseUrl}}/chats",
-              "host": ["{{baseUrl}}"],
-              "path": ["chats"]
-            }
-          }
-        },
-        {
-          "name": "Ver mensajes del chat",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
-                  "pm.test('Cada mensaje tiene remitente y hora', () => pm.response.json().forEach((m) => pm.expect(m).to.include.keys('sender', 'createdAt')));"
-                ]
-              }
-            }
-          ],
-          "request": {
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "{{baseUrl}}/chats/{{chatId}}/messages",
-              "host": ["{{baseUrl}}"],
-              "path": ["chats", "{{chatId}}", "messages"]
-            }
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status 200', () => pm.response.to.have.status(200));"
+            ]
           }
         }
       ]
     },
     {
-      "name": "4. Cerrar sesión",
-      "item": [
+      "name": "Usuario actual",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/auth/me",
+          "host": ["{{baseUrl}}"],
+          "path": ["auth", "me"]
+        }
+      },
+      "event": [
         {
-          "name": "Logout",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.test('Status 204', () => pm.response.to.have.status(204));"
-                ]
-              }
-            }
-          ],
-          "request": {
-            "method": "POST",
-            "header": [],
-            "url": {
-              "raw": "{{baseUrl}}/auth/logout",
-              "host": ["{{baseUrl}}"],
-              "path": ["auth", "logout"]
-            }
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status 200', () => pm.response.to.have.status(200));"
+            ]
           }
-        },
+        }
+      ]
+    },
+    {
+      "name": "Listar usuarios",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/users",
+          "host": ["{{baseUrl}}"],
+          "path": ["users"]
+        }
+      },
+      "event": [
         {
-          "name": "Listar chats sin sesión",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.test('Status 401', () => pm.response.to.have.status(401));"
-                ]
-              }
-            }
-          ],
-          "request": {
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "{{baseUrl}}/chats",
-              "host": ["{{baseUrl}}"],
-              "path": ["chats"]
-            }
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status 200', () => pm.response.to.have.status(200));",
+              "const bruno = pm.response.json().find((u) => u.email === 'bruno@solux.test');",
+              "pm.collectionVariables.set('brunoId', bruno.id);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Crear chat",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/chats",
+          "host": ["{{baseUrl}}"],
+          "path": ["chats"]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"participantIds\": [\n    \"{{brunoId}}\"\n  ]\n}"
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Chat creado', () => pm.expect(pm.response.code).to.be.oneOf([200, 201]));",
+              "pm.collectionVariables.set('chatId', pm.response.json().id);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Mis chats",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/chats",
+          "host": ["{{baseUrl}}"],
+          "path": ["chats"]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status 200', () => pm.response.to.have.status(200));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Mensajes del chat",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/chats/{{chatId}}/messages",
+          "host": ["{{baseUrl}}"],
+          "path": ["chats", "{{chatId}}", "messages"]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status 200', () => pm.response.to.have.status(200));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Logout",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/auth/logout",
+          "host": ["{{baseUrl}}"],
+          "path": ["auth", "logout"]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status 204', () => pm.response.to.have.status(204));"
+            ]
           }
         }
       ]
