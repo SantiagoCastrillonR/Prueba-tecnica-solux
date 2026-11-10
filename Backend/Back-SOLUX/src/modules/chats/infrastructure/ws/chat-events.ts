@@ -1,5 +1,4 @@
 export const CHAT_EVENTS = {
-  join: 'chat:join',
   message: 'chat:message',
   created: 'chat:created',
 } as const;

@@ -2,7 +2,6 @@ import { Module } from '@nestjs/common';
 import { UsersModule } from '@modules/users/users.module.js';
 import { ChatAccessService } from './application/services/chat-access.service.js';
 import { CreateChatUseCase } from './application/use-cases/create-chat.use-case.js';
-import { JoinChatUseCase } from './application/use-cases/join-chat.use-case.js';
 import { ListMessagesUseCase } from './application/use-cases/list-messages.use-case.js';
 import { ListMyChatIdsUseCase } from './application/use-cases/list-my-chat-ids.use-case.js';
 import { ListMyChatsUseCase } from './application/use-cases/list-my-chats.use-case.js';
@@ -25,7 +24,6 @@ import { SocketChatNotifier } from './infrastructure/ws/socket-chat.notifier.js'
     ListMyChatsUseCase,
     ListMessagesUseCase,
     SendMessageUseCase,
-    JoinChatUseCase,
     ListMyChatIdsUseCase,
     ChatGateway,
     SocketChatNotifier,

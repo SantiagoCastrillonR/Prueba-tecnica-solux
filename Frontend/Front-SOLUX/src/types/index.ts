@@ -53,7 +53,6 @@ export interface AckError {
 }
 
 export type MessageAck = { ok: true; message: Message } | AckError;
-export type JoinAck = { ok: true } | AckError;
 
 export interface ServerToClientEvents {
   'chat:message': (message: Message) => void;
@@ -64,10 +63,6 @@ export interface ClientToServerEvents {
   'chat:message': (
     payload: SendMessagePayload,
     ack: (response: MessageAck) => void
-  ) => void;
-  'chat:join': (
-    payload: { chatId: string },
-    ack: (response: JoinAck) => void
   ) => void;
 }
 
